@@ -66,7 +66,7 @@ def leitura_sensor_vaga(endereco):
 pode_entrar = True
 
 class DistributedServer:
-    def __init__(self, host='localhost', port=10602, client='client0'):
+    def __init__(self, host='localhost', port=10712, client='client0'):
         self.host = host
         self.port = port
         self.client = client
@@ -110,7 +110,6 @@ class DistributedServer:
             for endereco in range(8):
                 if leitura_sensor_vaga(endereco):
                     vagas_ocupadas.append(endereco+1)
-            total_vagas_ocupadas = len(vagas_ocupadas)
             time.sleep(0.3)
             self.envia_servidor(vagas_ocupadas)
 
@@ -121,28 +120,10 @@ class DistributedServer:
                     time.sleep(0.4)
                     fechar_cancela_saida()
                     print("Cancela fechada")
-
-    def receive_message(self):
-        while True:
-            try:
-                message = self.sock.recv(1024).decode()
-                message_dict = json.loads(message)
-                global pode_entrar
-                if message_dict['message'] == 'fechar':
-                    acender_luz_lotado()
-                    pode_entrar = False
-                if message_dict['message'] == 'abrir':
-                    apagar_luz_lotado() 
-                    pode_entrar = True   
-            except:
-                self.connect_to_server()
-
     def run(self):
         thread_sinal = threading.Thread(target=self.controla_sinal)
-        thread_receive = threading.Thread(target=self.receive_message)
-        thread_receive.start()
         thread_sinal.start()
 
 if __name__ == '__main__':
-    server = DistributedServer(port=10602, client='client0')
+    server = DistributedServer(port=10712, client='client0')
     server.run()
