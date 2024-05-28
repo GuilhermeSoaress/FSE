@@ -2,7 +2,6 @@ import socket
 import threading
 import json
 import RPi.GPIO as GPIO
-import uuid
 import time
 from datetime import datetime
 
@@ -79,28 +78,11 @@ class DistributedServer:
                 if leitura_sensor_vaga(endereco):
                     vagas_ocupadas.append(endereco+1)
             total_vagas_ocupadas = len(vagas_ocupadas)
-            # if total_vagas_ocupadas == 8:  # alterado
-            #     acender_luz_lotado()  # alterado
             time.sleep(0.5)
-            self.envia_servidor(vagas_ocupadas)
-
-    # def receive_message(self):
-    #     while True:
-    #         try:
-    #             message = self.sock.recv(1024).decode()
-    #             message_dict = json.loads(message)
-    #             if message_dict['message'] == 'fecha 2 andar':
-    #                 acender_luz_lotado()
-    #             if message_dict['message'] == 'abre 2 andar':
-    #                 apagar_luz_lotado() 
-    #         except:
-    #             self.connect_to_server()
-    #     self.sock.close()    
+            self.envia_servidor(vagas_ocupadas)   
 
     def run(self):
         thread_sinal = threading.Thread(target=self.controla_sinal)
-        # thread_receive = threading.Thread(target=self.receive_message)
-        # thread_receive.start()
         thread_sinal.start()
 
 if __name__ == '__main__':
