@@ -56,6 +56,23 @@ O sistema foi desenvolvido para funcionar com placas Raspberry Pi, com a seguint
   - Sensor de passagem indicando que a cancela pode ser fechada
 - **Vagas**:
   - 5 vagas regulares
+  - 2 vaga para idosos
+  - 1 vaga para portadores de necessidades especiais (PNE)
+
+#### Andar 2
+
+- **Cancela de entrada**:
+  - Botão para simular a chegada de um carro
+  - Sensor de presença indicando a presença do carro aguardando
+  - Cancela
+  - Sensor de passagem indicando que a cancela pode ser fechada
+- **Cancela de saída**:
+  - Sensor de presença indicando a presença de um carro aguardando a saída
+  - Cancela
+  - Sensor de passagem indicando que a cancela pode ser fechada
+- **Vagas**:
+  - 5 vagas regulares
+  - 2 vaga para idosos
   - 1 vaga para portadores de necessidades especiais (PNE)
 
 ## Linguagens e Bibliotecas
