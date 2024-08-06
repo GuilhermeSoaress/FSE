@@ -4,48 +4,7 @@ import gpio
 import i2c_bmp280_1
 import struct
 from time import sleep
-from PIL import Image, ImageDraw, ImageFont
-import Adafruit_SSD1306
-
-# Define o pino de reset (RST). Defina como None se não estiver usando.
-RST = None
-
-# Cria uma instância do display OLED com I2C
-disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
-
-# Inicializa o display
-disp.begin()
-
-# Limpa o display
-disp.clear()
-disp.display()
-
-# Cria um objeto de imagem em preto e branco
-width = disp.width
-height = disp.height
-image = Image.new('1', (width, height))
-
-# Objeto de desenho para desenhar na imagem
-draw = ImageDraw.Draw(image)
-
-# Limpa a imagem com um retângulo preto
-draw.rectangle((0, 0, width, height), outline=0, fill=0)
-
-# Define uma fonte padrão
-font = ImageFont.load_default()
-
-# Função para exibir texto no OLED
-def display_text(line1, line2):
-    # Limpa o display
-    draw.rectangle((0, 0, width, height), outline=0, fill=0)
-    
-    # Escreve o texto nas linhas especificadas
-    draw.text((0, 0), line1, font=font, fill=255)
-    draw.text((0, 20), line2, font=font, fill=255)
-    
-    # Exibe a imagem no display
-    disp.image(image)
-    disp.display()
+from display import display_text, clear_display
 
 cod = [0x01]  # Endereço da ESP32 
 id = [9, 5, 1, 9]  # Matrícula
@@ -156,43 +115,10 @@ def le_regs():
         btn2_descer = uart.envia_recebe(le_btn2_descer)
         btn2_subir = uart.envia_recebe(le_btn2_subir)
         btn3 = uart.envia_recebe(le_btn3)
-        
         btn_em = uart.envia_recebe(le_btn_em)
         btnE_T = uart.envia_recebe(le_btnE_T)
         btnE_1 = uart.envia_recebe(le_btnE_1)
         btnE_2 = uart.envia_recebe(le_btnE_2)
         btnE_3 = uart.envia_recebe(le_btnE_3)
 
-        print("\n  Andares  | Elevador")
-        print(f"3.......:{btn3} | E_3...:{btnE_3}")
-        print(f"2_subir.:{btn2_subir} | E_2...:{btnE_2}")
-        print(f"2_descer:{btn2_descer} | E_1...:{btnE_1}")
-        print(f"1_subir.:{btn1_subir} | E_T...:{btnE_T}")
-        print(f"1_descer:{btn1_descer} | Em....:{btn_em}")
-        print(f"T.......:{btnT} | \n")
-
-def escr_regs_off():
-    uart.envia_recebe(escr_btnT_off)
-    uart.envia_recebe(escr_btn1_descer_off)
-    uart.envia_recebe(escr_btn1_subir_off)
-    uart.envia_recebe(escr_btn2_descer_off)
-    uart.envia_recebe(escr_btn2_subir_off)
-    uart.envia_recebe(escr_btn3_off)
-    uart.envia_recebe(escr_btn_em_off)
-    uart.envia_recebe(escr_btnE_T_off)
-    uart.envia_recebe(escr_btnE_1_off)
-    uart.envia_recebe(escr_btnE_2_off)
-    uart.envia_recebe(escr_btnE_3_off)
-
-def escr_regs_on():
-    uart.envia_recebe(escr_btnT_on)
-    uart.envia_recebe(escr_btn1_descer_on)
-    uart.envia_recebe(escr_btn1_subir_on)
-    uart.envia_recebe(escr_btn2_descer_on)
-    uart.envia_recebe(escr_btn2_subir_on)
-    uart.envia_recebe(escr_btn3_on)
-    uart.envia_recebe(escr_btn_em_on)
-    uart.envia_recebe(escr_btnE_T_on)
-    uart.envia_recebe(escr_btnE_1_on)
-    uart.envia_recebe(escr_btnE_2_on)
-    uart.envia_recebe(escr_btnE_3_on)
+        sleep(0.2)
