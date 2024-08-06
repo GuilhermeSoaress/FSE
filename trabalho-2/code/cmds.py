@@ -1,10 +1,51 @@
 import logging
 import uart
-import lcd
 import gpio
 import i2c_bmp280_1
 import struct
 from time import sleep
+from PIL import Image, ImageDraw, ImageFont
+import Adafruit_SSD1306
+
+# Define o pino de reset (RST). Defina como None se não estiver usando.
+RST = None
+
+# Cria uma instância do display OLED com I2C
+disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+
+# Inicializa o display
+disp.begin()
+
+# Limpa o display
+disp.clear()
+disp.display()
+
+# Cria um objeto de imagem em preto e branco
+width = disp.width
+height = disp.height
+image = Image.new('1', (width, height))
+
+# Objeto de desenho para desenhar na imagem
+draw = ImageDraw.Draw(image)
+
+# Limpa a imagem com um retângulo preto
+draw.rectangle((0, 0, width, height), outline=0, fill=0)
+
+# Define uma fonte padrão
+font = ImageFont.load_default()
+
+# Função para exibir texto no OLED
+def display_text(line1, line2):
+    # Limpa o display
+    draw.rectangle((0, 0, width, height), outline=0, fill=0)
+    
+    # Escreve o texto nas linhas especificadas
+    draw.text((0, 0), line1, font=font, fill=255)
+    draw.text((0, 20), line2, font=font, fill=255)
+    
+    # Exibe a imagem no display
+    disp.image(image)
+    disp.display()
 
 cod = [0x01]  # Endereço da ESP32 
 id = [9, 5, 1, 9]  # Matrícula
@@ -84,8 +125,7 @@ def menu_elevador(exit_event):
         logging.info('Parou Terreo')
         sleep(5)
 
-def apurar_lcd(exit_event):
-    lcd.ClrLcd()
+def apurar_oled(exit_event):
     while not exit_event.is_set():
         temperature = i2c_bmp280_1.temp_ambiente()
         lcd_temp = round(temperature, 2)
@@ -93,12 +133,7 @@ def apurar_lcd(exit_event):
         atualiza_temp = [cod[0], 0x16, 0xD1, elevador_id, *struct.pack('<f', temperature), *id]
         uart.envia_recebe(atualiza_temp)
 
-        lcd.lcd_init()
-        lcd.lcdLoc(lcd.LINE1)
-        lcd.typeln(f"{controle.status} : {controle.nome_andar}")
-        lcd.lcdLoc(lcd.LINE2)
-        lcd.typeln(f"Temp: {lcd_temp} C")
-        lcd.ClrLcd()
+        display_text(f"Status: {controle.status}", f"Temp: {lcd_temp} C")
         sleep(0.2)
 
 def apurar_encoder():
@@ -132,7 +167,7 @@ def le_regs():
         print(f"3.......:{btn3} | E_3...:{btnE_3}")
         print(f"2_subir.:{btn2_subir} | E_2...:{btnE_2}")
         print(f"2_descer:{btn2_descer} | E_1...:{btnE_1}")
-        print(f"1_subir.:{btn1_subir} | E_T...:{btnE_T}", )
+        print(f"1_subir.:{btn1_subir} | E_T...:{btnE_T}")
         print(f"1_descer:{btn1_descer} | Em....:{btn_em}")
         print(f"T.......:{btnT} | \n")
 
