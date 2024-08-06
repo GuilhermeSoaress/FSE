@@ -18,14 +18,3 @@ def config_logging():
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-# Exemplo de uso
-# configure_logging()
-
-# def example_logging():
-#     logging.debug("Esta é uma mensagem de depuração")
-#     logging.info('Esta é uma mensagem informativa')
-#     logging.warning('Esta é uma mensagem de aviso')
-#     logging.error('Esta é uma mensagem de erro')
-#     logging.critical('Esta é uma mensagem crítica')
-
-# example_logging()

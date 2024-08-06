@@ -175,9 +175,3 @@ def escr_regs_on():
     uart.envia_recebe(escr_btnE_1_on)
     uart.envia_recebe(escr_btnE_2_on)
     uart.envia_recebe(escr_btnE_3_on)
-
-# valor_escr_btn = uart.envia_recebe(escr_btn3_on)
-# if valor_escr_btn is not None:
-#     logging.info(f"\nEscreve btn: {valor_escr_btn}")
-# else:
-#     logging.info("\nFalha ao obter o valor do botão escrito")

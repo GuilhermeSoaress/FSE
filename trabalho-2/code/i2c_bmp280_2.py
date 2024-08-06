@@ -15,17 +15,3 @@ def temp_ambiente():
     temperatura = sensor.get_temperature()
 
     return temperatura
-
-
-"""
-# Exemplo de uso
-try:
-    while True:
-        temperature = temp_ambiente()
-        temperature_formatada = round(temperature, 2)
-        print(f"temperature ambiente: {temperature_formatada} °C")
-        sleep(1)
-
-except KeyboardInterrupt:
-    print("\n\nPrograma interrompido pelo usuário.")
-"""
