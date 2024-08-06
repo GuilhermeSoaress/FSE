@@ -8,8 +8,6 @@ Trabalho da disciplina de Fundamentos de Sistemas Embarcados (2024/1)
 - João Manoel Barreto Neto - 211039519
 
 ### Dependências
-Python3 - (3.11.6) | Pip - (20.2.3) | Pyserial - (3.5) | Bmp280 - (0.0.4) | i2cdevice - (1.0.0) | RPi.GPIO - (0.7.1 | Smbus - (1.1.post2)
-
 
   Para instalar:
   ```bash
@@ -17,6 +15,8 @@ Python3 - (3.11.6) | Pip - (20.2.3) | Pyserial - (3.5) | Bmp280 - (0.0.4) | i2cd
   $ pip install bmp280
   $ pip install RPi.GPIO
   $ pip install smbus
+  $ pip install Adafruit-SSD1306
+  $ pip install pillow
   ```
 
 ### Executando
