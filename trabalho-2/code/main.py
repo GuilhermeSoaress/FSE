@@ -10,7 +10,6 @@ log.config_logging()
 
 import cmds
 import uart
-import lcd
 import gpio
 import pid
 import struct
@@ -20,7 +19,6 @@ pid_control.configura_constantes(Kp=0.1, Ki=0.05, Kd=0.01)
 pid_control.atualiza_referencia(0.0)
 
 controle = cmds.controle
-
 exit_execution = Event()
 
 def finaliza_programa(sig, frame):
@@ -33,12 +31,12 @@ def finaliza_programa(sig, frame):
     
 try:
     # Iniciando as threads
-    thread_apurar_lcd = Thread(target=cmds.apurar_lcd, args=(exit_execution,))
+    thread_apurar_oled = Thread(target=cmds.apurar_oled, args=(exit_execution,))
     thread_menu_elevador = Thread(target=cmds.menu_elevador, args=(exit_execution,))
     # thread_le_regs = Thread(target=cmds.le_regs)
 
     # Configurando as threads como daemon
-    thread_apurar_lcd.daemon = True
+    thread_apurar_oled.daemon = True
     thread_menu_elevador.daemon = True
     # thread_le_regs.daemon = True
 
@@ -47,17 +45,17 @@ try:
     signal.signal(signal.SIGTERM, finaliza_programa)
 
     # Iniciando as threads
-    thread_apurar_lcd.start()
+    thread_apurar_oled.start()
     thread_menu_elevador.start()
     # thread_le_regs.start()
 
     # Aguardando as threads terminarem (se necessário)
-    thread_apurar_lcd.join()
+    thread_apurar_oled.join()
     thread_menu_elevador.join()
     # thread_le_regs.join()
 
 except KeyboardInterrupt:
-    logging.info("Programa interrompido pelo usuario")
+    logging.info("Programa interrompido pelo usuário")
 
 finally:
     # Limpar configurações ao finalizar
