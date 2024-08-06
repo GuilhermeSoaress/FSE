@@ -8,9 +8,9 @@ from time import sleep
 logging.getLogger('').handlers.clear()
 log.config_logging()
 
-import cmds
+import cmds2
 import uart
-import gpio
+import gpio2
 import pid
 import struct
 
@@ -18,22 +18,22 @@ pid_control = pid.PID()
 pid_control.configura_constantes(Kp=0.1, Ki=0.05, Kd=0.01)
 pid_control.atualiza_referencia(0.0)
 
-controle = cmds.controle
+controle = cmds2.controle
 exit_execution = Event()
 
 def finaliza_programa(sig, frame):
     logging.info("Recebido sinal para finalizar o programa.")
     controle.stop_pwm()
-    gpio.GPIO.cleanup()
+    gpio2.GPIO.cleanup()
     exit_execution.set()
     logging.info("Programa interrompido pelo usuário.")
     sys.exit(0)
     
 try:
     # Iniciando as threads
-    thread_apurar_oled = Thread(target=cmds.apurar_oled, args=(exit_execution,))
-    thread_menu_elevador = Thread(target=cmds.menu_elevador, args=(exit_execution,))
-    # thread_le_regs = Thread(target=cmds.le_regs)
+    thread_apurar_oled = Thread(target=cmds2.apurar_oled, args=(exit_execution,))
+    thread_menu_elevador = Thread(target=cmds2.menu_elevador, args=(exit_execution,))
+    # thread_le_regs = Thread(target=cmds2.le_regs)
 
     # Configurando as threads como daemon
     thread_apurar_oled.daemon = True
@@ -59,5 +59,5 @@ except KeyboardInterrupt:
 
 finally:
     # Limpar configurações ao finalizar
-    cmds.controle.stop_pwm()
-    gpio.GPIO.cleanup()
+    cmds2.controle.stop_pwm()
+    gpio2.GPIO.cleanup()
