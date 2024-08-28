@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/CMakeFiles/bootloader
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/CMakeFiles/bootloader.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/CMakeFiles/bootloader-complete.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/yan/yan/projetos/ESP-IDF/sensorTemperatura+mqtt/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
