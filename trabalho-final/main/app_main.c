@@ -108,7 +108,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 static void mqtt_app_start(void)
 {
     esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri = "mqtt://192.168.1.27",
+        .broker.address.uri = "mqtt://164.41.98.25/",
+        .credentials.username = "TQBnkYgCmjOjuav11RZY",
+   
     };
     #if CONFIG_BROKER_URL_FROM_STDIN
     char line[128];
@@ -174,7 +176,7 @@ void dht_test(void *pvParameters)
 
             sprintf(temperatura, "%.2f",temperature);
             sprintf(umidade, "%.2f",humidity);
-            mqtt_envia_mensagem("/topic/temperatura", temperatura);
+            mqtt_envia_mensagem("v1/devices/me/telemetry", temperatura);
             mqtt_envia_mensagem("/topic/umidade", umidade);
             printf("Temperatura: %s\n", temperatura);
             printf("Umidade: %s\n", umidade);
