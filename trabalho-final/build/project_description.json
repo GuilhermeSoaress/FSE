@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "mqtt_tcp",
-    "project_version":    "9730d09-dirty",
+    "project_version":    "338864f-dirty",
     "project_path":       "/home/yan/yan/trabalho-final-relampago-marquinhos",
     "idf_path":           "/home/yan/esp/v5.3/esp-idf",
     "build_dir":          "/home/yan/yan/trabalho-final-relampago-marquinhos/build",
@@ -1195,7 +1195,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "protocol_examples_common" ],
             "file": "/home/yan/yan/trabalho-final-relampago-marquinhos/build/esp-idf/main/libmain.a",
-            "sources": [ "/home/yan/yan/trabalho-final-relampago-marquinhos/main/app_main.c" ],
+            "sources": [ "/home/yan/yan/trabalho-final-relampago-marquinhos/main/controle.c", "/home/yan/yan/trabalho-final-relampago-marquinhos/main/app_main.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
