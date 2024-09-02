@@ -54,7 +54,7 @@ char luminosidade[16];
 int requestID=0;
 int farolStatus = 0;
 char attributes[100];
-char telemetry[100]; 
+    char telemetry[100]; 
 
 int i =1;
 
@@ -115,11 +115,6 @@ int separaParametros(const char *json_str, char *method) {
  * @param event_id The id for the received event.
  * @param event_data The data for the event, esp_mqtt_event_handle_t.
  */
-void mqtt_envia_mensagem(char * topico, char * mensagem)
-{
-    int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1,0 );
-    ESP_LOGI(TAG, "Mensagem enviada, ID: %d", message_id);
-}
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32 "", base, event_id);
@@ -215,7 +210,11 @@ static void mqtt_app_start(void)
     //esp_mqtt_client_publish(client, "/topic/temperature", "Hello World", 0, 1, 0);
 }
 
-
+void mqtt_envia_mensagem(char * topico, char * mensagem)
+{
+    int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1,0 );
+    ESP_LOGI(TAG, "Mensagem enviada, ID: %d", message_id);
+}
 
 void dht_test(void *pvParameters)
 {
