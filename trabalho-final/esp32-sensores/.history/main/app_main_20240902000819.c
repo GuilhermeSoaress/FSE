@@ -35,32 +35,34 @@
 
 #include "esp_adc/adc_oneshot.h"
 #include "controle.h"
+#include "driver/ledc.h"
 //#define LDR 4
 #define ldr_channel ADC_CHANNEL_6
+
+#define LED_1 4 
 //adc2_channel 0
 // Configura o conversor AD
 #define INVALID_ADC_VALUE -1
 static int adc_raw[2][10];
-static int voltage[2][10];         
-// static bool example_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle);
-// static void example_adc_calibration_deinit(adc_cali_handle_t handle);
+        
 
 static const char *TAG = "mqtt_example";
+
 esp_mqtt_client_handle_t client;
+esp_mqtt_client_handle_t client2;
+
 float temperature, humidity;
-char temperatura[16] ;
-char umidade[16];
+// char temperatura[16] ;
+// char umidade[16];
 char luminosidade[16];
 int requestID=0;
+int requestID2=0;
 int farolStatus = 0;
 char attributes[100];
 char telemetry[100]; 
-
-int i =1;
-
 char method[50];
 
-
+int i =1;
 
 int separaParametros(const char *json_str, char *method) {
     
@@ -83,9 +85,12 @@ int separaParametros(const char *json_str, char *method) {
     }
 
     // Get "params"
+    valor = cJSON_GetObjectItem(json, "params");
+    valor = (int) valor;
     cJSON *params_item = cJSON_GetObjectItem(json, "params");
     if (cJSON_IsBool(params_item)) {
-        valor = cJSON_IsTrue(params_item) ? 1 : 0;
+        //valor = cJSON_IsTrue(params_item) ? 1 : 0;
+        int x =0;
     } else {
         printf("Error getting params\n");
         cJSON_Delete(json);
@@ -97,40 +102,64 @@ int separaParametros(const char *json_str, char *method) {
     return valor;
 }
 
+void inicializaPwm(){
+    // esp_rom_gpio_pad_select_gpio(2);
+    // gpio_set_direction(LED_1, GPIO_MODE_OUTPUT);
+    // Configuração do Timer
+    ledc_timer_config_t timer_config = {
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .duty_resolution = LEDC_TIMER_8_BIT,
+        .timer_num = LEDC_TIMER_0,
+        .freq_hz = 1000,
+        .clk_cfg = LEDC_AUTO_CLK
+    };
+    ledc_timer_config(&timer_config);
 
-// static void log_error_if_nonzero(const char *message, int error_code)
-// {
-//     if (error_code != 0) {
-//         ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
-//     }
-// }
+    // Configuração do Canal
+    ledc_channel_config_t channel_config = {
+        .gpio_num = LED_1,
+        .speed_mode = LEDC_LOW_SPEED_MODE,
+        .channel = LEDC_CHANNEL_0,
+        .timer_sel = LEDC_TIMER_0,
+        .duty = 0,
+        .hpoint = 0
+    };
 
-/*
- * @brief Event handler registered to receive MQTT events
- *
- *  This function is called by the MQTT client event loop.
- *
- * @param handler_args user data registered to the event.
- * @param base Event base for the handler(always MQTT Base in this example).
- * @param event_id The id for the received event.
- * @param event_data The data for the event, esp_mqtt_event_handle_t.
- */
+
+    ledc_channel_config(&channel_config);
+    ledc_fade_func_install(0);
+    
+    while(true)
+    {
+        ledc_set_fade_time_and_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0, 1000, LEDC_FADE_WAIT_DONE);
+        ledc_set_fade_time_and_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 255, 1000, LEDC_FADE_WAIT_DONE);
+    }
+}
+ 
 void mqtt_envia_mensagem(char * topico, char * mensagem)
 {
     int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1,0 );
+    int message_id2 = esp_mqtt_client_publish(client2, topico, mensagem, 0, 1,0 );
     ESP_LOGI(TAG, "Mensagem enviada, ID: %d", message_id);
+    ESP_LOGI(TAG, "Mensagem enviada, ID: %d", message_id2);
 }
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32 "", base, event_id);
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
+    
+    esp_mqtt_event_handle_t event2 = event_data;
+    esp_mqtt_client_handle_t client2 = event2->client;
     int msg_id;
     switch (event_id) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
             msg_id = esp_mqtt_client_subscribe(client, "v1/devices/me/rpc/request/+", 0);
             esp_mqtt_client_subscribe(client, "v1/devices/me/attributes/response/+" , 0);
+            
+            msg_id = esp_mqtt_client_subscribe(client2, "v1/devices/me/rpc/request/+", 0);
+            esp_mqtt_client_subscribe(client2, "v1/devices/me/attributes/response/+" , 0);
             break;
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
@@ -149,19 +178,28 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         case MQTT_EVENT_DATA:
             ESP_LOGI(TAG, "MQTT_EVENT_DATA");
             requestID = event->event_id;
+            requestID2 = event2->event_id;
             printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
             printf("Event ID: %d\n", requestID);
+            printf("DATA=%.*s\r\n", event->data_len, event->data);
+
+            printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+            printf("Event ID: %d\n", requestID2);
             printf("DATA=%.*s\r\n", event->data_len, event->data);
             
             int valor = separaParametros(event->data, method);
             printf("Method: %s\n", method);
             if(strcmp(method, "farol") == 0){
-                farois(valor);
+                //farois(valor);
                 printf("Status do farol %d\n", farolStatus);
                 farolStatus = valor;
                 sprintf(attributes, "{\"farol\": %d}", farolStatus);
                 mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
             } 
+            else if(strcmp(method, "luzInterna")==0){
+                printf("Luz Interna %d\n", valor);
+                ledc_set_fade_time_and_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, valor, 1000, LEDC_FADE_WAIT_DONE);
+            }
             else printf("Método não encontrado\n"); 
                     
         case MQTT_EVENT_ERROR:
@@ -180,6 +218,9 @@ static void mqtt_app_start(void)
         .broker.address.uri = "mqtt://164.41.98.25",
         .credentials.username = "TQBnkYgCmjOjuav11RZY",
    
+    };
+    esp_mqtt_client_config_t mqtt_cfg2 = {
+        .broker.address.uri = "mqtt://192.168.1.27"
     };
     #if CONFIG_BROKER_URL_FROM_STDIN
     char line[128];
@@ -206,13 +247,12 @@ static void mqtt_app_start(void)
     }
 #endif
     
-    //esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     client = esp_mqtt_client_init(&mqtt_cfg);
-    /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
+    client2 = esp_mqtt_client_init(&mqtt_cfg2);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL );
+    esp_mqtt_client_register_event(client2, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL );
     esp_mqtt_client_start(client);
-    //esp_mqtt_client_subscribe(client, "v1/devices/me/rpc/request/+", 0);
-    //esp_mqtt_client_publish(client, "/topic/temperature", "Hello World", 0, 1, 0);
+    esp_mqtt_client_start(client2);
 }
 
 
@@ -244,7 +284,7 @@ void dht_test(void *pvParameters)
         }else {
             sprintf(luminosidade, "0");
         }
-        printf("LDR: %s\n", luminosidade);
+        //printf("LDR: %s\n", luminosidade);
         
         if (dht_read_float_data(DHT_TYPE_DHT11, 5, &humidity, &temperature) == ESP_OK){
 
@@ -256,29 +296,39 @@ void dht_test(void *pvParameters)
         
         sprintf(telemetry, "{\"temperatura\": %.2f, \"umidade\": %.2f, \"luminosidade\" : %s}", temperature, humidity, luminosidade);
         mqtt_envia_mensagem("v1/devices/me/telemetry", telemetry);
- 
-        // char rpc_message[100];
-        // sprintf(rpc_message, "{\"method\":\"ligaFarois\", \"params\":{\"farol\": true}}");
-        // mqtt_envia_mensagem("v1/devices/me/rpc/request/1", rpc_message);
+      
         sprintf(attributes, "{\"farol\": %d}", farolStatus);
         mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
         vTaskDelay(pdMS_TO_TICKS(3000));
-
-        // char topico[100];
-        // snprintf (topico, 100, "%s%d", "v1/devices/me/attributes/request/", requestID);
-        // printf("TOPICO: %s\n", topico);
-        // mqtt_envia_mensagem(requestID, requestID);
-
+      
         
     }
 }
 
+void processaMetodo(const char *data, char *method) {
+    int valor = separaParametros(data, method);
+    printf("Method: %s\n", method);
+    if(strcmp(method, "farol") == 0){
+        printf("Status do farol %d\n", farolStatus);
+        farolStatus = valor;
+        sprintf(attributes, "{\"farol\": %d}", farolStatus);
+        mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
+    } 
+    else if(strcmp(method, "luzInterna")==0){
+        printf("Luz Interna %d\n", valor);
+        ledc_set_fade_time_and_start(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, valor, 1000, LEDC_FADE_WAIT_DONE);
+    }
+    else {
+        printf("Método não encontrado\n");
+    }
+}
 
 
 
 void app_main(void)
 {
     xTaskCreate(dht_test, "dht_test", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
+    xTaskCreate(inicializaPwm, "inicializaPwm", configMINIMAL_STACK_SIZE , NULL, 5, NULL);
     ESP_LOGI(TAG, "[APP] Startup..");
     ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
