@@ -42,7 +42,7 @@
 // Driver da GPIO com funções estendidas para o modo sleep
 #include "driver/rtc_io.h"
 
-#define BOTAO 4
+#define BOTAO 5
 
 
 

@@ -42,7 +42,7 @@
 // Driver da GPIO com funções estendidas para o modo sleep
 #include "driver/rtc_io.h"
 
-#define BOTAO 4
+#define BOTAO 0
 
 
 
@@ -345,7 +345,7 @@ void configuraSleep()
 
     if (rtc_gpio_get_level(BOTAO) == 1)
     {
-        printf("A ... \n");
+        printf("Aguardando soltar o botão ... \n");
         do
         {
             vTaskDelay(pdMS_TO_TICKS(10));
