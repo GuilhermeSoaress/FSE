@@ -62,7 +62,6 @@ int travadoStatus = 0;
 int i =1;
 
 //Pinos
-#define botaoIgnicao 12
 #define porta 16
 #define posChave 17
 #define freio 5
@@ -374,54 +373,6 @@ void cb_connection_ok(void *pvParameter){
     ESP_LOGI(TAG, "I have a connection and my IP is %s!", str_ip);
 }
 
-
-void configuraSleep()
-{
-    // Configuração da GPIO para o botão de entrada
-    esp_rom_gpio_pad_select_gpio(botaoIgnicao);
-    gpio_set_direction(botaoIgnicao, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(botaoIgnicao, GPIO_PULLUP_ONLY);
-    // Habilita o botão para acordar a placa
-    gpio_wakeup_enable(botaoIgnicao, GPIO_INTR_HIGH_LEVEL);
-    
-    esp_sleep_enable_gpio_wakeup();
-
-    // Configurando o Sleep Timer (em microsegundos)
-    //esp_sleep_enable_timer_wakeup(5 * 1000000);
-
-  while(true)
-  {
-
-    if (rtc_gpio_get_level(botaoIgnicao) == 1)
-    {
-        printf("A ... \n");
-        do
-        {
-            vTaskDelay(pdMS_TO_TICKS(10));
-        } while (rtc_gpio_get_level(botaoIgnicao) == 1);
-    }
-
-    printf("Entrando em modo Light Sleep\n");
-    
-    // Configura o modo sleep somente após completar a escrita na UART para finalizar o printf
-    uart_tx_wait_idle(CONFIG_ESP_CONSOLE_UART_NUM);
-
-    //int64_t tempo_antes_de_dormir = esp_timer_get_time();
-
-    // Entra em modo Light Sleep
-    esp_light_sleep_start();
-
-    //int64_t tempo_apos_acordar = esp_timer_get_time();
-
-    esp_sleep_wakeup_cause_t causa = esp_sleep_get_wakeup_cause();
-
-    //printf("Dormiu por %lld ms\n", (tempo_apos_acordar - tempo_antes_de_dormir) / 1000);
-    //printf("O [%s] me acordou !\n", causa == ESP_SLEEP_WAKEUP_TIMER ? "TIMER" : "BOTÃO");
-
-  }
-}
-
-
 void app_main(void)
 {
     /* Initialize NVS */
@@ -447,11 +398,11 @@ void app_main(void)
 
     mqtt_app_start();
     configuraPinos();
+    
     //xTaskCreate(enviaEstadoGpio, "enviaEstadoGpio", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
 
     filaDeInterrupcao = xQueueCreate(10, sizeof(int));
     xTaskCreate(trataInterrupcaoBotao, "TrataBotao", 2048, NULL, 1, NULL);
-    xTaskCreate(configuraSleep, "configuraSleep", configMINIMAL_STACK_SIZE, NULL, 5, NULL); //thread de light sleep
 
     gpio_install_isr_service(0);
     gpio_isr_handler_add(porta, gpio_isr_handler, (void *) porta);

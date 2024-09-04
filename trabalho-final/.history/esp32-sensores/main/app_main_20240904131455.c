@@ -45,6 +45,9 @@
 #include "wifi_manager.h"
 #define BOTAO 4
 
+
+
+
 //#define LDR 4
 #define ldr_channel ADC_CHANNEL_6
 

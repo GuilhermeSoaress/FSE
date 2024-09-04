@@ -62,7 +62,7 @@ int travadoStatus = 0;
 int i =1;
 
 //Pinos
-#define botaoIgnicao 12
+#define botaoIgnicao 19
 #define porta 16
 #define posChave 17
 #define freio 5
