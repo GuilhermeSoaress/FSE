@@ -58,3 +58,36 @@ Esta parte do código é responsável por:
 - Controle de farol, travas, vidros.
 - Configuração de MQTT: Similar à primeira main, configurando um cliente MQTT para comunicação.
 - Leitura de sensores e controle de atuadores: Configuração de um ADC para leitura de luminosidade e, provavelmente, controle de GPIOs ou LEDs.
+
+## Passos para Execução
+1. Clone o repositório do GitHub:
+
+```bash
+git clone https://github.com/FGA-FSE/trabalho-final-relampago-marquinhos.git
+```
+
+2. É recomendado que você instale a extensão ESP-IDF no Visual Studio Code. Ela auxilia no desenvolvimento e execução de projetos com ESP32.
+
+3. Configuração do ambiente de execução:
+
+- Abra o projeto no VSCode.
+- Abra dois terminais, pois você precisará rodar duas ESP32 separadamente com arquivos 'main' diferentes.
+
+4. Execução do projeto:
+
+- No primeiro terminal, navegue até a pasta ESP32-Sensores:
+```bash
+cd esp32-sensores
+```
+- No segundo terminal, navegue até a pasta ESP32-GPIOS:
+```bash
+cd esp32-gpios
+```
+- Em ambos os terminais, execute o comando para fazer o build do projeto:
+```bash
+idf.py build
+```
+- Para dar o flash na placa, utilize o seguinte comando com a placa em modo boot:
+```bash
+idf.py flash monitor
+```
