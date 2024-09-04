@@ -24,4 +24,37 @@ O sistema foi desenvolvido para funcionar com duas ESP32, que se comunicam via M
 - ESP32-Sensores: Responsável pela coleta de dados dos sensores de luminosidade e controle de dispositivos PWM. Ela envia os dados coletados ao ThingsBoard e interage com o dashboard.
 - ESP32-GPIO: Controla os botões de entrada e LEDs de saída, responsável pelo controle das luzes do carro, como faróis e luz interna.
 
-Ambas as ESP32 se comunicam com o ThingsBoard via MQTT, permitindo o monitoramento e controle centralizados no dashboard de um sistema chamado "Relâmpago Marquinhos", onde o usuário pode interagir com o sistema e visualizar as métricas coletadas.
+Ambas as ESP32 se comunicam com o ThingsBoard via MQTT, permitindo o monitoramento e controle centralizados no dashboard de um sistema chamado "Relâmpago Marquinhos", onde o usuário pode interagir com o sistema e visualizar os dados coletadas.
+
+## Arquitetura do Projeto
+A arquitetura do projeto está dividida entre hardware e software, como descrito abaixo:
+
+#### Hardware:
+- Duas ESP32. 
+- Sensores: Incluindo um sensor de umidade e temperatura e um sensor de luminosidade.
+- LEDs: Indicando o estado dos faróis e iluminação interna.
+- Botões de entrada: Controlam manualmente as funções do veículo, como ligar/desligar os faróis.
+
+#### Software:
+
+- Cada ESP32 possui um arquivo main diferente, sendo responsável por diferentes conjuntos de funcionalidades.
+- Comunicação MQTT: Utilizada para troca de informações entre os sensores e o ThingsBoard.
+- Integração com o ThingsBoard: Dados de sensores e estado dos LEDs são monitorados e controlados via dashboard.
+
+1. Pasta esp32_sensores
+dht 11 temperatura; refletancia
+Esta parte do código é responsável por:
+- Configuração do MQTT: Conexão com broker, publicando e assinando tópicos para comunicação de dados.
+- Sensores e atuadores:
+    - Leitura de temperatura e umidade.
+    - Leitura de luminosidade através de um ADC.
+    - Controle de um LED via PWM, associado à "luz interna".
+    - Controle de faróis, com comunicação via MQTT para refletir o estado dos faróis e luz interna.
+- Processamento de métodos: Interpretação de comandos recebidos via MQTT e execução de ações, como ligar/desligar faróis e ajustar a intensidade da luz interna.
+- Envio de dados via MQTT: Telemetria sobre temperatura, umidade, e luminosidade, e envio de atributos como estado dos faróis e da luz interna.
+- Modo Sleep: Implementação de um botão para acordar o sistema e colocá-lo em modo light sleep quando não há atividade, visando economia de energia.
+
+2. Pasta esp32_gpios
+- Controle de farol, travas, vidros.
+- Configuração de MQTT: Similar à primeira main, configurando um cliente MQTT para comunicação.
+- Leitura de sensores e controle de atuadores: Configuração de um ADC para leitura de luminosidade e, provavelmente, controle de GPIOs ou LEDs.
