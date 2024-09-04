@@ -41,8 +41,8 @@
 
 // Driver da GPIO com funções estendidas para o modo sleep
 #include "driver/rtc_io.h"
-#include "esp_lcd.c"
-#define BOTAO 4
+
+#define BOTAO 0
 
 
 
@@ -406,5 +406,8 @@ void app_main(void)
     //configuraSleep();
     //char temperatura[] = temperature;
     //sprintf(convertido, "%.3f", valor);
-    
+    esp_err_t i2c_master_init(void);
+   i2c_lcd_init_sequence(int 76);
+   char msg[] = "Hello World";
+   i2c_lcd_write_message(char* msg, int address);
 }
