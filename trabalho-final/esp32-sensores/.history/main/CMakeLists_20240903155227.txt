@@ -1,0 +1,12 @@
+if(IDF_VERSION_MAJOR GREATER_EQUAL 4)
+    idf_component_register(
+        SRC_DIRS src /components/esp32-wifi-manager/src
+        REQUIRES log nvs_flash mdns wpa_supplicant lwip esp_http_server esp_wifi wifi_manager  # Adicione wifi_manager aqui
+        INCLUDE_DIRS src /components/esp32-wifi-manager/src
+        EMBED_FILES src/style.css src/code.js src/index.html
+    )
+endif()
+
+idf_component_register(SRCS "controle.c" "app_main.c"
+                    INCLUDE_DIRS ".")
+                    
