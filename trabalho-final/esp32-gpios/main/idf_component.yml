@@ -1,4 +1,5 @@
 dependencies:
+  espressif/mdns: "^1.4.0"
   protocol_examples_common:
     path: ${IDF_PATH}/examples/common_components/protocol_examples_common
   espressif/esp_wifi_remote:
