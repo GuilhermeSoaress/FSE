@@ -238,7 +238,7 @@ void processaMetodo(const char *data, char *method) {
     int valor = separaParametros(data, method);
     printf("Method: %s\n", method);
     if(strcmp(method, "travadoStatus") == 0){
-        (valor == 0) ? destravar() : travar();
+        (valor == 0) ? destravar(); : travar();
         travadoStatus = valor;
         snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
         mqtt_envia_mensagem("v1/devices/me/attributes", attributes);

@@ -158,15 +158,7 @@ void trataInterrupcaoBotao(void *params)
         case botaoTravar:
             
             botaoTravarStatus = 1;
-            if(travadoStatus){
-                destravar();
-                travadoStatus=0;
-            }
-            else{
-                travar();
-                travadoStatus=1;
-            }
-
+            (travadoStatus) ?  destravar(), travadoStatus = 0 : travar(), travadoStatus = 1;
             printf("Porta travada: %d\n", travadoStatus);
             snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
             mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
@@ -234,19 +226,29 @@ int separaParametros(const char *json_str, char *method) {
 }
  
 
-void processaMetodo(const char *data, char *method) {
-    int valor = separaParametros(data, method);
-    printf("Method: %s\n", method);
-    if(strcmp(method, "travadoStatus") == 0){
-        (valor == 0) ? destravar() : travar();
-        travadoStatus = valor;
-        snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
-        mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
-        mqtt_envia_mensagem2("v1/devices/me/attributes/gpios", attributes);
-    }
-    else
-        printf("Método não encontrado\n");
-}
+// void processaMetodo(const char *data, char *method) {
+//     int valor = separaParametros(data, method);
+//     printf("Method: %s\n", method);
+//     if(strcmp(method, "farol") == 0){
+//         farois(valor);
+//         printf("Status do farol %d\n", farolStatus);
+//         farolStatus = valor;
+//         sprintf(attributes, "{\"farol\": %d}", farolStatus);
+//         mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
+//     } 
+//     else if(strcmp(method, "luzInterna")==0){
+//         printf("Luz Interna %d\n", valor);
+//         luzInternaPwm = valor;
+//         int duty = (int)(valor * 255 / 100);
+//         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, duty);
+//         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
+//         sprintf(attributes, "{\"luzInterna\": %d}", luzInternaPwm);
+//         mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
+//     }
+//     else {
+//         printf("Método não encontrado\n");
+//     }
+// }
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32 "", base, event_id);
@@ -291,7 +293,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             printf("Event ID: %d\n", requestID2);
             printf("DATA=%.*s\r\n", event->data_len, event->data);
             
-            processaMetodo(event->data, method);
+            //processaMetodo(event->data, method);
                     
         case MQTT_EVENT_ERROR:
             ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
