@@ -83,20 +83,20 @@ Esta parte do código é responsável por:
 - Leitura de sensores e controle de atuadores: Configuração de um ADC para leitura de luminosidade e, provavelmente, controle de GPIOs ou LEDs.
 
 ## Passos para Execução
-1. Clone o repositório do GitHub:
+#### 1. Clone o repositório do GitHub:
 
 ```bash
 git clone https://github.com/FGA-FSE/trabalho-final-relampago-marquinhos.git
 ```
 
-2. É recomendado que você instale a extensão ESP-IDF no Visual Studio Code. Ela auxilia no desenvolvimento e execução de projetos com ESP32.
+#### 2. É recomendado que você instale a extensão ESP-IDF no Visual Studio Code. Ela auxilia no desenvolvimento e execução de projetos com ESP32.
 
-3. Configuração do ambiente de execução:
+#### 3. Configuração do ambiente de execução:
 
 - Abra o projeto no VSCode.
 - Abra dois terminais, pois você precisará rodar duas ESP32 separadamente com arquivos 'main' diferentes.
 
-4. Execução do projeto:
+#### 4. Execução do projeto:
 
 - No primeiro terminal, navegue até a pasta ESP32-Sensores:
 ```bash
@@ -115,7 +115,40 @@ idf.py build
 idf.py flash monitor
 ```
 
-5. Acessando o Dashboard do ThingsBoard:
+#### 5. Configuração da Conexão Wi-Fi da ESP32
+
+A ESP32 pode ser configurada para se conectar a uma rede Wi-Fi usando um processo de conexão automática e uma configuração manual via ponto de acesso (AP) se a conexão inicial falhar. Siga os passos abaixo para configurar o Wi-Fi da ESP32:
+
+##### Passo a Passo para Configuração do Wi-Fi
+
+1. Inicialização da Conexão Wi-Fi
+
+- A ESP32 tentará se conectar à rede Wi-Fi configurada três vezes.
+- Se a conexão falhar após três tentativas, a ESP32 ativará um ponto de acesso (AP) próprio para configuração manual.
+
+2. Ativação do Ponto de Acesso
+
+- Quando o ponto de acesso é ativado, a ESP32 criará uma rede Wi-Fi com um nome específico.
+- No seu dispositivo, procure pela rede Wi-Fi com o nome fornecido e conecte-se a ela.
+
+3. Acesso à Página de Configuração
+
+- Após conectar-se ao ponto de acesso da ESP32, abra um navegador da web.
+- A ESP32 deve redirecionar automaticamente para uma página de configuração.
+
+4. Configuração da Rede Wi-Fi
+
+- Na página de configuração, você verá campos para inserir o 'SSID' (nome da rede) e 'password' (senha) da rede Wi-Fi à qual deseja conectar a ESP32.
+- Preencha os campos com as informações da sua rede Wi-Fi.
+- Clique no botão para salvar as configurações.
+
+5. Verificação da Conexão
+
+- Após enviar as configurações, a ESP32 tentará se conectar à rede Wi-Fi configurada.
+- A página de configuração exibirá uma mensagem indicando se a conexão foi bem-sucedida ou se houve algum erro.
+
+#### 6. Acessando o Dashboard do ThingsBoard:
 
 - Acesse o ThingsBoard, faça login na sua conta, e acesse os dashboards disponíveis.
 - Vá até o dashboard 'Relâmpago Marquinhos', onde você poderá visualizar os dados dos sensores e utilizar as entradas e sensores disponíveis no sistema.
+![alt text](image.png)
