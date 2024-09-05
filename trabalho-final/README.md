@@ -6,13 +6,13 @@ Trabalho final da disciplina de Fundamentos de Sistemas Embarcados (2024/1)
 
 - Guilherme Soares Rocha - 211039789
 - João Manoel Barreto Neto - 211039519
-- Miguel Frias - xxxx
+- Miguel Matos Costa de Frias Barbosa - 211039635
 - Yan Luca Viana de Araújo Fontenele - 211031889
 
 ## Objetivos
 
-Este projeto visa criar um sistema embarcado para controle e monitoramento de algumas funções essenciais de um carro. Os principais objetivos são:
-- Controlar com precisão os faróis e a iluminação interna, coletar dados de temperatura, umidade e luminosidade, e otimizar o consumo de energia do veículo.
+Este projeto visa criar um sistema embarcado para controle e monitoramento de algumas funções de um carro. Os principais objetivos são:
+- Controlar os faróis e a iluminação interna, coletar dados de temperatura, umidade e luminosidade, e otimizar o consumo de energia do veículo.
 - Melhoria na eficiência energética do veículo, controle remoto eficaz dos sistemas do carro através do ThingsBoard, e uma interface de usuário intuitiva para monitoramento em tempo real.
 - Coletar dados de sensores de luminosidade e outros sensores de controle.
 - Utilizar um sistema distribuído com duas placas ESP32, cada uma controlando diferentes conjuntos de sensores e atuadores.
@@ -82,6 +82,9 @@ Esta parte do código é responsável por:
 - Configuração de MQTT: Similar à primeira ESP, configurando um cliente MQTT para comunicação.
 - Leitura de sensores e controle de atuadores: Configuração de um ADC para leitura de luminosidade e, provavelmente, controle de GPIOs ou LEDs.
 
+#### Diagrama
+![Diagrama](/assets/diagrama.png)
+
 ## Passos para Execução
 #### 1. Clone o repositório do GitHub:
 
@@ -150,5 +153,5 @@ A ESP32 pode ser configurada para se conectar a uma rede Wi-Fi usando um process
 #### 6. Acessando o Dashboard do ThingsBoard:
 
 - Acesse o ThingsBoard, faça login na sua conta, e acesse os dashboards disponíveis.
-- Vá até o dashboard 'Relâmpago Marquinhos', onde você poderá visualizar os dados dos sensores e utilizar as entradas e sensores disponíveis no sistema.
-![alt text](image.png)
+- Vá até o dashboard 'RelampagoMarquinhos', onde você poderá visualizar os dados dos sensores e utilizar as entradas e sensores disponíveis no sistema.
+![ThingsBoard](/assets/thingsBoard.png)
