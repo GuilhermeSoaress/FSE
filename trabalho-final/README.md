@@ -30,7 +30,7 @@ Ambas as ESP32 se comunicam com o ThingsBoard via MQTT, permitindo o monitoramen
 A arquitetura do projeto está dividida entre hardware e software, como descrito abaixo:
 
 #### Hardware:
-- Duas ESP32. 
+- Duas ESP32.
 - Sensores: DHT11 (temperatura e umidade), LDR (luminosidade).
 - LEDs: Indicando o estado dos faróis e iluminação interna.
 - Botões de entrada: Controlam manualmente as funções do veículo, como ligar/desligar os faróis.
@@ -43,7 +43,8 @@ A arquitetura do projeto está dividida entre hardware e software, como descrito
 - Integração com o ThingsBoard: Dados de sensores e estado dos LEDs são monitorados e controlados via dashboard.
 
 As ESP32 estão configuradas para operar em modo sleep. O objetivo é otimizar o consumo de energia, fazendo com que a ESP32 em modo sleep acorde apenas quando necessário, executando suas tarefas específicas e voltando ao estado de baixo consumo.
-Configuração do Modo Sleep: A ESP32 é configurada para entrar em Light Sleep, um estado de baixo consumo de energia que permite a retomada rápida das operações. A GPIO conectada ao botão, é utilizada como o gatilho para acordar a placa.
+
+Configuração do Modo light Sleep: A ESP32 é configurada para entrar em Light Sleep, um estado de baixo consumo de energia que permite a retomada rápida das operações. A GPIO conectada ao botão, é utilizada como o gatilho para acordar a placa.
 
 - Configuração da GPIO:
     - A GPIO é configurada para entrada, com um resistor de pull-up habilitado.
@@ -60,10 +61,6 @@ Comportamento Após Acordar:
 - Verifica o nível da GPIO conectada ao botão.
 - Se a GPIO estiver com o botão pressionado, espera até que o botão seja liberado.
 - Uma vez liberado, a ESP32 entra novamente no modo Light Sleep após um curto período de delay.
-
-Estado de Sleep Contínuo:
-A ESP32 não permanece dormindo o tempo inteiro; ela entra em modo Light Sleep apenas quando as condições são atendidas, permitindo uma resposta rápida ao botão, mas retornando ao estado de baixo consumo rapidamente para economizar energia.
-
 
 1. Pasta esp32_sensores
 Esta parte do código é responsável por:
@@ -136,8 +133,8 @@ A ESP32 pode ser configurada para se conectar a uma rede Wi-Fi usando um process
 
 3. Acesso à Página de Configuração
 
-- Após conectar-se ao ponto de acesso da ESP32, abra um navegador da web.
-- A ESP32 deve redirecionar automaticamente para uma página de configuração.
+- A ESP32 irá abrir uma página no navegador padrão para que sejam adicionadas as credenciais do Wi-Fi.
+- Caso isso não aconteça, abra uma página no navegador e digite o IP: 10.10.0.1
 
 4. Configuração da Rede Wi-Fi
 
@@ -153,7 +150,7 @@ A ESP32 pode ser configurada para se conectar a uma rede Wi-Fi usando um process
 #### 6. Acessando o Dashboard do ThingsBoard:
 
 - Acesse o ThingsBoard, faça login na sua conta, e acesse os dashboards disponíveis.
-- Vá até o dashboard 'RelampagoMarquinhos', onde você poderá visualizar os dados dos sensores e utilizar as entradas e sensores disponíveis no sistema.
+- Vá até o dashboard 'ESP32-RelampagoMarquinhos', onde você poderá visualizar os dados dos sensores e utilizar as entradas e sensores disponíveis no sistema.
 ![ThingsBoard](/assets/thingsBoard.png)
 
 ## Conclusão
