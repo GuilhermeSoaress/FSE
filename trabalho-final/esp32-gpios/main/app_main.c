@@ -35,23 +35,19 @@
 
 #include "esp_adc/adc_oneshot.h"
 #include "controle.h"
-//#define LDR 4
+#include "wifi_manager.h"
+#include "esp_sleep.h"
+#include "esp32/rom/uart.h"
+#include "driver/rtc_io.h"
 #define ldr_channel ADC_CHANNEL_6
-//adc2_channel 0
-// Configura o conversor AD
 #define INVALID_ADC_VALUE -1
-static int adc_raw[2][10];
-        
 
+static int adc_raw[2][10];        
 static const char *TAG = "mqtt_example";
 
 esp_mqtt_client_handle_t client;
 esp_mqtt_client_handle_t client2;
 
-float temperature, humidity;
-// char temperatura[16] ;
-// char umidade[16];
-char luminosidade[16];
 int requestID=0;
 int requestID2=0;
 int farolStatus = 0;
@@ -62,12 +58,14 @@ int portaStatus = 0;
 int posChaveStatus = 0;
 int freioStatus = 0;
 int botaoTravarStatus = 0;
+int travadoStatus = 0;
 int i =1;
 
 //Pinos
-#define porta 10
-#define posChave 16
-#define freio 18
+#define botaoIgnicao 12
+#define porta 16
+#define posChave 17
+#define freio 5
 #define botaoTravar 4
 
 QueueHandle_t filaDeInterrupcao;
@@ -134,32 +132,46 @@ void trataInterrupcaoBotao(void *params)
         {
         case porta:
             portaStatus = estado; 
-            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus);
+            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
             mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
             mqtt_envia_mensagem2("v1/devices/me/attributes/gpios", attributes);
-             vTaskDelay(500/portTICK_PERIOD_MS);
+             //vTaskDelay(500/portTICK_PERIOD_MS);
             break;
         case posChave:
             posChaveStatus = estado;
-            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus);
+            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
             mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
             mqtt_envia_mensagem2("v1/devices/me/attributes/gpios", attributes);
-             vTaskDelay(500/portTICK_PERIOD_MS);
+             //vTaskDelay(500/portTICK_PERIOD_MS);
             break;
         case freio:
             freioStatus = estado;
-            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus);
+            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
             mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
             mqtt_envia_mensagem2("v1/devices/me/attributes/gpios", attributes);
             break;
-            vTaskDelay(500/portTICK_PERIOD_MS);
+            //vTaskDelay(500/portTICK_PERIOD_MS);
         case botaoTravar:
-            botaoTravarStatus = estado;
-            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus);
+            
+            botaoTravarStatus = 1;
+            if(travadoStatus){
+                destravar();
+                travadoStatus=0;
+            }
+            else{
+                travar();
+                travadoStatus=1;
+            }
+
+            printf("Porta travada: %d\n", travadoStatus);
+            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
             mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
             mqtt_envia_mensagem2("v1/devices/me/attributes/gpios", attributes);
-            (estado) ? travar() : destravar();
-            vTaskDelay(500/portTICK_PERIOD_MS);
+            vTaskDelay(1000/portTICK_PERIOD_MS);
+            botaoTravarStatus = 0;
+            snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
+            mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
+            mqtt_envia_mensagem2("v1/devices/me/attributes/gpios", attributes);
             break;
 
         default:
@@ -218,29 +230,19 @@ int separaParametros(const char *json_str, char *method) {
 }
  
 
-// void processaMetodo(const char *data, char *method) {
-//     int valor = separaParametros(data, method);
-//     printf("Method: %s\n", method);
-//     if(strcmp(method, "farol") == 0){
-//         farois(valor);
-//         printf("Status do farol %d\n", farolStatus);
-//         farolStatus = valor;
-//         sprintf(attributes, "{\"farol\": %d}", farolStatus);
-//         mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
-//     } 
-//     else if(strcmp(method, "luzInterna")==0){
-//         printf("Luz Interna %d\n", valor);
-//         luzInternaPwm = valor;
-//         int duty = (int)(valor * 255 / 100);
-//         ledc_set_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0, duty);
-//         ledc_update_duty(LEDC_HIGH_SPEED_MODE, LEDC_CHANNEL_0);
-//         sprintf(attributes, "{\"luzInterna\": %d}", luzInternaPwm);
-//         mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
-//     }
-//     else {
-//         printf("Método não encontrado\n");
-//     }
-// }
+void processaMetodo(const char *data, char *method) {
+    int valor = separaParametros(data, method);
+    printf("Method: %s\n", method);
+    if(strcmp(method, "travadoStatus") == 0){
+        (valor == 0) ? destravar() : travar();
+        travadoStatus = valor;
+        snprintf(attributes, sizeof(attributes), "{\"porta\": %d, \"posChave\": %d, \"freio\": %d, \"botaoTravar\": %d, \"travadoStatus\": %d}", portaStatus, posChaveStatus, freioStatus, botaoTravarStatus, travadoStatus);
+        mqtt_envia_mensagem("v1/devices/me/attributes", attributes);
+        mqtt_envia_mensagem2("v1/devices/me/attributes/gpios", attributes);
+    }
+    else
+        printf("Método não encontrado\n");
+}
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32 "", base, event_id);
@@ -285,7 +287,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             printf("Event ID: %d\n", requestID2);
             printf("DATA=%.*s\r\n", event->data_len, event->data);
             
-            //processaMetodo(event->data, method);
+            processaMetodo(event->data, method);
                     
         case MQTT_EVENT_ERROR:
             ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
@@ -350,9 +352,87 @@ static void mqtt_app_start(void)
 //         vTaskDelay(1000 / portTICK_PERIOD_MS);
 //     }
 // }
+void monitoring_task(void *pvParameter)
+{
+    for(;;){
+        // Modificação: Use PRIu32 para imprimir o tamanho da heap corretamente
+        ESP_LOGI(TAG, "free heap: %" PRIu32, esp_get_free_heap_size());
+        vTaskDelay(pdMS_TO_TICKS(10000));
+    }
+}
+
+/**
+ * @brief this is an example of a callback that you can setup in your own app to get notified of wifi manager event.
+ */
+void cb_connection_ok(void *pvParameter){
+    ip_event_got_ip_t* param = (ip_event_got_ip_t*)pvParameter;
+
+    /* transform IP to human readable string */
+    char str_ip[16];
+    esp_ip4addr_ntoa(&param->ip_info.ip, str_ip, IP4ADDR_STRLEN_MAX);
+
+    ESP_LOGI(TAG, "I have a connection and my IP is %s!", str_ip);
+}
+
+
+void configuraSleep()
+{
+    // Configuração da GPIO para o botão de entrada
+    esp_rom_gpio_pad_select_gpio(botaoIgnicao);
+    gpio_set_direction(botaoIgnicao, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(botaoIgnicao, GPIO_PULLUP_ONLY);
+    // Habilita o botão para acordar a placa
+    gpio_wakeup_enable(botaoIgnicao, GPIO_INTR_HIGH_LEVEL);
+    
+    esp_sleep_enable_gpio_wakeup();
+
+    // Configurando o Sleep Timer (em microsegundos)
+    //esp_sleep_enable_timer_wakeup(5 * 1000000);
+
+  while(true)
+  {
+
+    if (rtc_gpio_get_level(botaoIgnicao) == 1)
+    {
+        printf("A ... \n");
+        do
+        {
+            vTaskDelay(pdMS_TO_TICKS(10));
+        } while (rtc_gpio_get_level(botaoIgnicao) == 1);
+    }
+
+    printf("Entrando em modo Light Sleep\n");
+    
+    // Configura o modo sleep somente após completar a escrita na UART para finalizar o printf
+    uart_tx_wait_idle(CONFIG_ESP_CONSOLE_UART_NUM);
+
+    //int64_t tempo_antes_de_dormir = esp_timer_get_time();
+
+    // Entra em modo Light Sleep
+    esp_light_sleep_start();
+
+    //int64_t tempo_apos_acordar = esp_timer_get_time();
+
+    esp_sleep_wakeup_cause_t causa = esp_sleep_get_wakeup_cause();
+
+    //printf("Dormiu por %lld ms\n", (tempo_apos_acordar - tempo_antes_de_dormir) / 1000);
+    //printf("O [%s] me acordou !\n", causa == ESP_SLEEP_WAKEUP_TIMER ? "TIMER" : "BOTÃO");
+
+  }
+}
+
 
 void app_main(void)
 {
+    /* Initialize NVS */
+    ESP_ERROR_CHECK(nvs_flash_init());
+
+    /* Start the WiFi Manager */
+    wifi_manager_start();
+
+    /* Register a callback to handle the event when the WiFi gets an IP */
+    wifi_manager_set_callback(WM_EVENT_STA_GOT_IP, &cb_connection_ok);
+
     ESP_LOGI(TAG, "[APP] Startup..");
     ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
@@ -365,19 +445,13 @@ void app_main(void)
     esp_log_level_set("transport", ESP_LOG_VERBOSE);
     esp_log_level_set("outbox", ESP_LOG_VERBOSE);
 
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    
-    ESP_ERROR_CHECK(example_connect());
-
     mqtt_app_start();
     configuraPinos();
-    
     //xTaskCreate(enviaEstadoGpio, "enviaEstadoGpio", configMINIMAL_STACK_SIZE * 3, NULL, 5, NULL);
 
     filaDeInterrupcao = xQueueCreate(10, sizeof(int));
     xTaskCreate(trataInterrupcaoBotao, "TrataBotao", 2048, NULL, 1, NULL);
+    xTaskCreate(configuraSleep, "configuraSleep", configMINIMAL_STACK_SIZE, NULL, 5, NULL); //thread de light sleep
 
     gpio_install_isr_service(0);
     gpio_isr_handler_add(porta, gpio_isr_handler, (void *) porta);

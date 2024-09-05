@@ -1,6 +1,5 @@
 {
-    "idf.adapterTargetName": "esp32",
-    "idf.port": "/dev/ttyUSB0",
     "idf.flashType": "UART",
-    "cmake.sourceDirectory": "${workspaceFolder}/home/dfrias/esp/v5.3/esp-idf/components/app_trace"
+    "idf.port": "/dev/ttyUSB0",
+    "idf.adapterTargetName": "esp32"
 }
