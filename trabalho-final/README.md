@@ -12,8 +12,8 @@ Trabalho final da disciplina de Fundamentos de Sistemas Embarcados (2024/1)
 ## Objetivos
 
 Este projeto visa criar um sistema embarcado para controle e monitoramento de algumas funções essenciais de um carro. Os principais objetivos são:
-
-- Controlar e monitorar componentes eletrônicos do veículo, como faróis e iluminação interna.
+- Controlar com precisão os faróis e a iluminação interna, coletar dados de temperatura, umidade e luminosidade, e otimizar o consumo de energia do veículo.
+- Melhoria na eficiência energética do veículo, controle remoto eficaz dos sistemas do carro através do ThingsBoard, e uma interface de usuário intuitiva para monitoramento em tempo real.
 - Coletar dados de sensores de luminosidade e outros sensores de controle.
 - Utilizar um sistema distribuído com duas placas ESP32, cada uma controlando diferentes conjuntos de sensores e atuadores.
 - Integrar o sistema com uma plataforma de monitoramento em tempo real (ThingsBoard), possibilitando a visualização dos dados e o controle remoto de componentes do carro.
@@ -31,18 +31,41 @@ A arquitetura do projeto está dividida entre hardware e software, como descrito
 
 #### Hardware:
 - Duas ESP32. 
-- Sensores: Incluindo um sensor de umidade e temperatura e um sensor de luminosidade.
+- Sensores: DHT11 (temperatura e umidade), LDR (luminosidade).
 - LEDs: Indicando o estado dos faróis e iluminação interna.
 - Botões de entrada: Controlam manualmente as funções do veículo, como ligar/desligar os faróis.
 
 #### Software:
 
 - Cada ESP32 possui um arquivo main diferente, sendo responsável por diferentes conjuntos de funcionalidades.
+- ThingsBoard: Plataforma IoT que recebe e exibe os dados dos sensores e permite o controle remoto através de comandos MQTT.
 - Comunicação MQTT: Utilizada para troca de informações entre os sensores e o ThingsBoard.
 - Integração com o ThingsBoard: Dados de sensores e estado dos LEDs são monitorados e controlados via dashboard.
 
+As ESP32 estão configuradas para operar em modo sleep. O objetivo é otimizar o consumo de energia, fazendo com que a ESP32 em modo sleep acorde apenas quando necessário, executando suas tarefas específicas e voltando ao estado de baixo consumo.
+Configuração do Modo Sleep: A ESP32 é configurada para entrar em Light Sleep, um estado de baixo consumo de energia que permite a retomada rápida das operações. A GPIO conectada ao botão, é utilizada como o gatilho para acordar a placa.
+
+- Configuração da GPIO:
+    - A GPIO é configurada para entrada, com um resistor de pull-up habilitado.
+    - A interrupção na GPIO é configurada para nível alto, o que significa que qualquer pressão no botão irá acordar a ESP32.
+
+- Habilitação do Wakeup pela GPIO:
+    - A função gpio_wakeup_enable é utilizada para habilitar a funcionalidade de wakeup pela GPIO.
+    - A função esp_sleep_enable_gpio_wakeup ativa o wakeup através de uma interrupção na GPIO configurada.
+
+A ESP32 acorda quando o botão é pressionado.
+
+Comportamento Após Acordar:
+
+- Verifica o nível da GPIO conectada ao botão.
+- Se a GPIO estiver com o botão pressionado, espera até que o botão seja liberado.
+- Uma vez liberado, a ESP32 entra novamente no modo Light Sleep após um curto período de delay.
+
+Estado de Sleep Contínuo:
+A ESP32 não permanece dormindo o tempo inteiro; ela entra em modo Light Sleep apenas quando as condições são atendidas, permitindo uma resposta rápida ao botão, mas retornando ao estado de baixo consumo rapidamente para economizar energia.
+
+
 1. Pasta esp32_sensores
-dht 11 temperatura; refletancia
 Esta parte do código é responsável por:
 - Configuração do MQTT: Conexão com broker, publicando e assinando tópicos para comunicação de dados.
 - Sensores e atuadores:
@@ -56,7 +79,7 @@ Esta parte do código é responsável por:
 
 2. Pasta esp32_gpios
 - Controle de farol, travas, vidros.
-- Configuração de MQTT: Similar à primeira main, configurando um cliente MQTT para comunicação.
+- Configuração de MQTT: Similar à primeira ESP, configurando um cliente MQTT para comunicação.
 - Leitura de sensores e controle de atuadores: Configuração de um ADC para leitura de luminosidade e, provavelmente, controle de GPIOs ou LEDs.
 
 ## Passos para Execução
@@ -91,3 +114,8 @@ idf.py build
 ```bash
 idf.py flash monitor
 ```
+
+5. Acessando o Dashboard do ThingsBoard:
+
+- Acesse o ThingsBoard, faça login na sua conta, e acesse os dashboards disponíveis.
+- Vá até o dashboard 'Relâmpago Marquinhos', onde você poderá visualizar os dados dos sensores e utilizar as entradas e sensores disponíveis no sistema.
