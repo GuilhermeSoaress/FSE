@@ -147,6 +147,8 @@ A ESP32 pode ser configurada para se conectar a uma rede Wi-Fi usando um process
 - Após enviar as configurações, a ESP32 tentará se conectar à rede Wi-Fi configurada.
 - A página de configuração exibirá uma mensagem indicando se a conexão foi bem-sucedida ou se houve algum erro.
 
+![Diagrama](/assets/wifi.png)
+
 #### 6. Acessando o Dashboard do ThingsBoard:
 
 - Acesse o ThingsBoard, faça login na sua conta, e acesse os dashboards disponíveis.
