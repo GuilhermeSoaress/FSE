@@ -135,5 +135,9 @@ A ESP32 pode ser configurada para se conectar a uma rede Wi-Fi usando um process
 - Vá até o dashboard 'ESP32-RelampagoMarquinhos', onde você poderá visualizar os dados dos sensores e utilizar as entradas e sensores disponíveis no sistema.
 ![ThingsBoard](/assets/thingsBoard.png)
 
+## Apresentação
+
+Pdf utilizado para auxiliar a apresentação do projeto em sala. [PDF](https://github.com/FGA-FSE/trabalho-final-relampago-marquinhos/blob/main/assets/REl%C3%A2mpago.pdf)
+
 ## Conclusão
 O projeto desenvolvido cria uma solução IoT utilizando microcontroladores ESP32, sensores e atuadores distribuídos, interconectados via Wi-Fi utilizando o protocolo MQTT. A integração com o ThingsBoard permitiu o monitoramento dos dados de telemetria, além do controle remoto dos dispositivos via Remote Procedure Calls (RPC).
