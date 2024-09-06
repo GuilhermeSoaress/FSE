@@ -4,19 +4,17 @@ Trabalho final da disciplina de Fundamentos de Sistemas Embarcados (2024/1)
 
 ## Membros
 
-- Guilherme Soares Rocha - 211039789
-- João Manoel Barreto Neto - 211039519
-- Miguel Matos Costa de Frias Barbosa - 211039635
-- Yan Luca Viana de Araújo Fontenele - 211031889
+- [Guilherme Soares Rocha](https://github.com/GuilhermeSoaress) - 211039789
+- [João Manoel Barreto Neto](https://github.com/JoaoBarreto03) - 211039519
+- [Miguel Matos Costa de Frias Barbosa](https://github.com/migueldefrias) - 211039635
+- [Yan Luca Viana de Araújo Fontenele](https://github.com/yan-luca) - 211031889
 
 ## Objetivos
 
 Este projeto visa criar um sistema embarcado para controle e monitoramento de algumas funções de um carro. Os principais objetivos são:
 - Controlar os faróis e a iluminação interna, coletar dados de temperatura, umidade e luminosidade, e otimizar o consumo de energia do veículo.
-- Melhoria na eficiência energética do veículo, controle remoto eficaz dos sistemas do carro através do ThingsBoard, e uma interface de usuário intuitiva para monitoramento em tempo real.
-- Coletar dados de sensores de luminosidade e outros sensores de controle.
+- Melhoria na eficiência energética do veículo, controle remoto eficaz dos sistemas do carro através do ThingsBoard, e uma interface de usuário para monitoramento em tempo real.
 - Utilizar um sistema distribuído com duas placas ESP32, cada uma controlando diferentes conjuntos de sensores e atuadores.
-- Integrar o sistema com uma plataforma de monitoramento em tempo real (ThingsBoard), possibilitando a visualização dos dados e o controle remoto de componentes do carro.
 
 ## Descrição do Sistema
 O sistema foi desenvolvido para funcionar com duas ESP32, que se comunicam via MQTT usando um broker. Ele utiliza sensores para monitorar condições do carro, como a luminosidade externa e interna, além de controlar os LEDs (indicando o estado dos faróis) e dispositivos PWM. A arquitetura do sistema foi organizada da seguinte forma:
@@ -24,7 +22,7 @@ O sistema foi desenvolvido para funcionar com duas ESP32, que se comunicam via M
 - ESP32-Sensores: Responsável pela coleta de dados dos sensores de luminosidade e controle de dispositivos PWM. Ela envia os dados coletados ao ThingsBoard e interage com o dashboard.
 - ESP32-GPIO: Controla os botões de entrada e LEDs de saída, responsável pelo controle das luzes do carro, como faróis e luz interna.
 
-Ambas as ESP32 se comunicam com o ThingsBoard via MQTT, permitindo o monitoramento e controle centralizados no dashboard de um sistema chamado "Relâmpago Marquinhos", onde o usuário pode interagir com o sistema e visualizar os dados coletadas.
+Ambas as ESP32 se comunicam com o ThingsBoard via MQTT, permitindo o monitoramento e controle centralizados no dashboard "Relâmpago Marquinhos", onde o usuário pode interagir com o sistema e visualizar os dados coletadas.
 
 ## Arquitetura do Projeto
 A arquitetura do projeto está dividida entre hardware e software, como descrito abaixo:
@@ -42,25 +40,7 @@ A arquitetura do projeto está dividida entre hardware e software, como descrito
 - Comunicação MQTT: Utilizada para troca de informações entre os sensores e o ThingsBoard.
 - Integração com o ThingsBoard: Dados de sensores e estado dos LEDs são monitorados e controlados via dashboard.
 
-As ESP32 estão configuradas para operar em modo sleep. O objetivo é otimizar o consumo de energia, fazendo com que a ESP32 em modo sleep acorde apenas quando necessário, executando suas tarefas específicas e voltando ao estado de baixo consumo.
-
-Configuração do Modo light Sleep: A ESP32 é configurada para entrar em Light Sleep, um estado de baixo consumo de energia que permite a retomada rápida das operações. A GPIO conectada ao botão, é utilizada como o gatilho para acordar a placa.
-
-- Configuração da GPIO:
-    - A GPIO é configurada para entrada, com um resistor de pull-up habilitado.
-    - A interrupção na GPIO é configurada para nível alto, o que significa que qualquer pressão no botão irá acordar a ESP32.
-
-- Habilitação do Wakeup pela GPIO:
-    - A função gpio_wakeup_enable é utilizada para habilitar a funcionalidade de wakeup pela GPIO.
-    - A função esp_sleep_enable_gpio_wakeup ativa o wakeup através de uma interrupção na GPIO configurada.
-
-A ESP32 acorda quando o botão é pressionado.
-
-Comportamento Após Acordar:
-
-- Verifica o nível da GPIO conectada ao botão.
-- Se a GPIO estiver com o botão pressionado, espera até que o botão seja liberado.
-- Uma vez liberado, a ESP32 entra novamente no modo Light Sleep após um curto período de delay.
+As ESP32 estão configuradas para operar em modo sleep. O objetivo é otimizar o consumo de energia, fazendo com que a ESP32 em modo sleep acorde apenas quando necessário, executando suas tarefas específicas e voltando ao estado de baixo consumo.As ESP32 são configuradas para entrar em Light Sleep, a GPIO conectada ao botão é utilizada como o gatilho para acordar a placa.
 
 1. Pasta esp32_sensores
 Esta parte do código é responsável por:
@@ -72,10 +52,10 @@ Esta parte do código é responsável por:
     - Controle de faróis, com comunicação via MQTT para refletir o estado dos faróis e luz interna.
 - Processamento de métodos: Interpretação de comandos recebidos via MQTT e execução de ações, como ligar/desligar faróis e ajustar a intensidade da luz interna.
 - Envio de dados via MQTT: Telemetria sobre temperatura, umidade, e luminosidade, e envio de atributos como estado dos faróis e da luz interna.
-- Modo Sleep: Implementação de um botão para acordar o sistema e colocá-lo em modo light sleep quando não há atividade, visando economia de energia.
+- Modo Sleep: Implementação de um botão para acordar o sistema e colocá-lo em modo light sleep quando acionado, visando economia de energia.
 
 2. Pasta esp32_gpios
-- Controle de farol, travas, vidros.
+- Controle de leds relacionados ao farol, travas e vidros.
 - Configuração de MQTT: Similar à primeira ESP, configurando um cliente MQTT para comunicação.
 - Leitura de sensores e controle de atuadores: Configuração de um ADC para leitura de luminosidade e, provavelmente, controle de GPIOs ou LEDs.
 
@@ -157,5 +137,3 @@ A ESP32 pode ser configurada para se conectar a uma rede Wi-Fi usando um process
 
 ## Conclusão
 O projeto desenvolvido cria uma solução IoT utilizando microcontroladores ESP32, sensores e atuadores distribuídos, interconectados via Wi-Fi utilizando o protocolo MQTT. A integração com o ThingsBoard permitiu o monitoramento dos dados de telemetria, além do controle remoto dos dispositivos via Remote Procedure Calls (RPC).
-
-Por fim, a documentação detalhada fornece uma visão completa do projeto, abrangendo desde a configuração inicial até o funcionamento do sistema, garantindo uma fácil replicação do ambiente de desenvolvimento.
