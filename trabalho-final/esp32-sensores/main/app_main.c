@@ -28,7 +28,6 @@
 
 #define BOTAO 4
 #define ldr_channel ADC_CHANNEL_6
-// #define LED_1 15 
 #define dhtPin 25
 
 //INPUTS
@@ -90,11 +89,14 @@ void configuraPinos(){
     gpio_set_intr_type(botaoVidros, GPIO_INTR_HIGH_LEVEL);
     gpio_set_intr_type(botaoTrava, GPIO_INTR_HIGH_LEVEL);
 }
+
+//envia mensagem para o thingsboard
 void mqtt_envia_mensagem(char * topico, char * mensagem)
 {
     int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1,0 );
     ESP_LOGI(TAG, "Mensagem enviada, ID: %d", message_id);
 }
+//envia mensagem para o broker
 void mqtt_envia_mensagem2(char * topico, char * mensagem)
 {
     int message_id = esp_mqtt_client_publish(client2, topico, mensagem, 0, 1,0 );
@@ -106,6 +108,9 @@ static void IRAM_ATTR gpio_isr_handler(void *args)
 
   xQueueSendFromISR(filaDeInterrupcao, &pino, NULL);
 }
+
+
+//funcao para tratar a interrupção do botao através de uma fila
 void trataInterrupcaoBotao(void *params)
 {
   int pino;
@@ -171,6 +176,8 @@ void trataInterrupcaoBotao(void *params)
     }
   }
 } 
+
+//função para separar parametros vindos do thingsboard
 int separaParametros(const char *json_str, char *method) {
     
     int valor;
@@ -195,6 +202,8 @@ int separaParametros(const char *json_str, char *method) {
     cJSON_Delete(json);
     return valor;
 }
+
+//função que processa os métodos recebidos para executar certas ações
  void processaMetodo(const char *data, char *method) {    
      int valor = separaParametros(data, method);
      printf("Method: %s\n", method);
@@ -365,6 +374,8 @@ void leituraSensores(void *pvParameters)
         
     }
 }
+
+//função de sleep da esp, para dormir com a ativação de um botao ligado na gpio
 void configuraSleep()
 {
     esp_rom_gpio_pad_select_gpio(BOTAO);
@@ -377,7 +388,6 @@ void configuraSleep()
 
   while(true)
   {
-
     if (rtc_gpio_get_level(BOTAO) == 1)
     {
         printf("Acordando... \n");
