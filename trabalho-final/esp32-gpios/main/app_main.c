@@ -131,11 +131,14 @@ void inicializaPwm(){
     }
     ESP_LOGI(TAG, "Canal configurado com sucesso.");
 }
+
+//função para enviar msg para o thingsboard
 void mqtt_envia_mensagem(char * topico, char * mensagem)
 {
     int message_id = esp_mqtt_client_publish(client, topico, mensagem, 0, 1,0 );
     ESP_LOGI(TAG, "Mensagem enviada, ID: %d", message_id);
 }
+//função para enviar msg para o broker
 void mqtt_envia_mensagem2(char * topico, char * mensagem)
 {
     int message_id = esp_mqtt_client_publish(client2, topico, mensagem, 0, 1,0 );
@@ -146,6 +149,8 @@ static void IRAM_ATTR gpio_isr_handler(void *args)
   int pino = (int)args;
   xQueueSendFromISR(filaDeInterrupcao, &pino, NULL);
 }
+
+//função para tratar o funcionamento dos botoes atraves de uma fila de interrupção
 void trataInterrupcaoBotao(void *params)
 {
   int pino;
@@ -210,6 +215,8 @@ void trataInterrupcaoBotao(void *params)
     }
   }
 }
+
+//função para separar os parametros recebidos do thingsboard
 int separaParametros(const char *json_str, char *method) {
     
     int valor;
@@ -240,6 +247,8 @@ int separaParametros(const char *json_str, char *method) {
     cJSON_Delete(json);
     return valor;
 }
+
+//função que processa os métodos recebidos para executar certas ações
 void processaMetodo(const char *data, char *method, char *topic, char *valorTopico) {
     int valor = separaParametros(data, method);
     printf("Topic:%s\n", topic);
@@ -328,14 +337,9 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         case MQTT_EVENT_DATA:
             ESP_LOGI(TAG, "MQTT_EVENT_DATA");
             requestID = event->event_id;
-            //requestID2 = event2->event_id;
-             printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-             printf("Event ID: %d\n", requestID);
-             printf("DATA=%.*s\r\n", event->data_len, event->data);
-
-            // printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-            // printf("Event ID: %d\n", requestID2);
-            // printf("DATA=%.*s\r\n", event->data_len, event->data);
+            printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+            printf("Event ID: %d\n", requestID);
+            printf("DATA=%.*s\r\n", event->data_len, event->data);
             sprintf(topic, "%.*s", event->topic_len, event->topic);
             char valorData[5];
             sprintf(valorData, "%.*s", event->data_len, event->data);
@@ -417,6 +421,8 @@ void dispararAlarme(){
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
+
+//função de sleep da esp, sleep é acionado através de um botao na board porém possibilita a ação de destravar e travar através de um botao local especifico.
 void configuraSleep()
 {
     esp_rom_gpio_pad_select_gpio(botaoIgnicao);
